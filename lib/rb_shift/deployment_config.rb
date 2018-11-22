@@ -41,6 +41,16 @@ module RbShift
       wait_for_deployments(timeout: timeout, polling: polling) if block
     end
 
+    def cancel_deployment
+      log.info "Cancelling deployment of deployment config #{name}"
+      @parent.execute 'rollout cancel', "#{kind}/#{name}"
+      @parent.execute 'rollout status', "#{kind}/#{name}", '--watch'
+    rescue RbShift::Client::InvalidCommandError => error
+      raise unless error.message =~ /was cancelled/i
+    ensure
+      deployments(true)
+    end
+
     def wait_for_deployments(timeout: 60, polling: 5)
       Timeout.timeout(timeout) do
         log.info "Waiting for deployments of #{name} for #{timeout} seconds..."

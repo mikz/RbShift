@@ -63,6 +63,10 @@ module RbShift
       end
     end
 
+    def kind
+      self.class.class_name
+    end
+
     def self.resource_name
       class_name + 's'
     end
