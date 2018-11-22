@@ -51,6 +51,14 @@ module RbShift
       deployments(true)
     end
 
+    def uses_config_map?(name)
+      Array(self[:spec].dig(:template, :spec, :containers)).any? do |c|
+        Array(c.dig(:env)).any? do |e|
+          e.dig(:valueFrom, :configMapKeyRef, :name) == name.to_s
+        end
+      end
+    end
+
     def wait_for_deployments(timeout: 60, polling: 5)
       Timeout.timeout(timeout) do
         log.info "Waiting for deployments of #{name} for #{timeout} seconds..."
